@@ -4,10 +4,10 @@
     <string name="title_activity_settings">SettingsActivity</string>
 
     <!-- Label for the api preference [CHAR LIMIT=30] -->
-    <string name="pref_api_label">api</string>
+    <string name="pref_api_label">The Movie Db API Key</string>
 
     <!-- Key name for storing api in shared preferences [CHAR LIMIT=NONE]-->
-    <string name="pref_api_key" translatable="false">api</string>
+    <string name="pref_api_key" translatable="false">api_key</string>
 
     <!-- Default postal code for api preference [CHAR LIMIT=NONE] -->
     <string name="pref_api_default" translatable="false">000000000</string>
