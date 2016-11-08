@@ -142,6 +142,9 @@ public class MovieListFragment extends Fragment {
             String apiKey = params[0]; //TODO before uploading to play store have this read from somewhere, not a user preference
             String language = "en-UK";
 
+            //TODO allow changing the page
+            String page ="1";
+
             //declare how the movies will be sorted
             //TODO allow using top_rated as sort path and error check
             String sorting = "popular";
@@ -153,15 +156,16 @@ public class MovieListFragment extends Fragment {
 
                 final String MOVIES_BASE_URL = "https://api.themoviedb.org/3/movie";
 
-
-
-                final String LANGUAGE_PARAM = "mode";
                 final String APIKEY_PARAM = "api_key";
+                final String LANGUAGE_PARAM = "mode";
+                final String PAGE_PARAM = "page";
+
 
                 Uri builtUri = Uri.parse(MOVIES_BASE_URL);
                 builtUri = builtUri.buildUpon().appendPath(sorting)
                         .appendQueryParameter(APIKEY_PARAM, apiKey)
                         .appendQueryParameter(LANGUAGE_PARAM, language)
+                        .appendQueryParameter(PAGE_PARAM,page)
                         .build();
 
                 URL url = new URL(builtUri.toString());
