@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -76,12 +77,14 @@ public class MovieListFragment extends Fragment {
 
         return rootView;
     }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
         inflater.inflate(movielistfragment, menu);
 
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -107,11 +110,10 @@ public class MovieListFragment extends Fragment {
 
         FetchMoviesTask moviesTask = new FetchMoviesTask();
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String apiUserKey = sharedPref.getString(getString(R.string.pref_api_key), getString(R.string.pref_api_default));
+        //TODO allow using top_rated as sort path and error check
+        String sortMethod = "top_";
 
-
-        moviesTask.execute(apiUserKey);
+        moviesTask.execute(sortMethod);
     }
 
     public class FetchMoviesTask extends AsyncTask<String, Void, String[]> {
@@ -135,16 +137,21 @@ public class MovieListFragment extends Fragment {
             String moviesJsonStr = null;
 
 
-            //declare parameters of query
-            String apiKey = params[0]; //TODO before uploading to play store have this read from somewhere, not a user preference
+            //declare parameters of query getting API from shared prefs
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+            String apiKey = sharedPref.getString(getString(R.string.pref_api_key), getString(R.string.pref_api_default));
+            ; //TODO before uploading to play store have this read from somewhere, not a user preference
+
+
             String language = "en-UK";
 
             //TODO allow changing the page
-            String page ="1";
+            String page = "1";
 
             //declare how the movies will be sorted
-            //TODO allow using top_rated as sort path and error check
-            String sorting = "popular";
+
+            String sorting = getSortMethod(params[0]);
 
             try {
 
@@ -162,12 +169,12 @@ public class MovieListFragment extends Fragment {
                 builtUri = builtUri.buildUpon().appendPath(sorting)
                         .appendQueryParameter(APIKEY_PARAM, apiKey)
                         .appendQueryParameter(LANGUAGE_PARAM, language)
-                        .appendQueryParameter(PAGE_PARAM,page)
+                        .appendQueryParameter(PAGE_PARAM, page)
                         .build();
 
                 URL url = new URL(builtUri.toString());
 
-                Log.v(LOG_TAG,"Using URL: "+ url);
+                Log.v(LOG_TAG, "Using URL: " + url);
 
 
                 // Create the request to TheMovieDB, and open the connection
@@ -200,7 +207,7 @@ public class MovieListFragment extends Fragment {
                     return null;
                 }
                 moviesJsonStr = buffer.toString();
-                Log.v(LOG_TAG,"retrieved JSON String: "+ moviesJsonStr);
+                Log.v(LOG_TAG, "retrieved JSON String: " + moviesJsonStr);
 
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
@@ -229,9 +236,22 @@ public class MovieListFragment extends Fragment {
                 }
 
 
-
                 return movies;
             }
+        }
+
+        //method to check that sorting method passed in is valid
+
+        @NonNull
+        private String getSortMethod(String param) {
+            String sorting = "popular";
+            if(param.equals("top_rated")){
+                sorting = "top_rated";
+            }
+            else if (!param.equals("popular")){
+                Log.v(LOG_TAG, "Unknown sorting method using "+sorting);
+            }
+            return sorting;
         }
 
         @Override
@@ -255,7 +275,7 @@ public class MovieListFragment extends Fragment {
 
             // These are the names of the JSON objects that need to be extracted.
             final String TMDB_RESULTS = "results";
-            final String TMDB_TITLE ="title";
+            final String TMDB_TITLE = "title";
             final String TMDB_POSTERPATH = "poster_path";
             final String TMDB_ID = "id";
 
@@ -285,14 +305,13 @@ public class MovieListFragment extends Fragment {
 
 
                 resultStrs[i] = title + " - " + posterPath + " - " + id;
-                Log.v(LOG_TAG, "Movie " + i + ": " +resultStrs[i]);
+                Log.v(LOG_TAG, "Movie " + i + ": " + resultStrs[i]);
             }
 
 
             return resultStrs;
 
         }
-
 
 
     }
