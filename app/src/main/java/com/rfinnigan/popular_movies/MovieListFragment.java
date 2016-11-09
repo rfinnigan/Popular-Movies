@@ -110,8 +110,8 @@ public class MovieListFragment extends Fragment {
 
         FetchMoviesTask moviesTask = new FetchMoviesTask();
 
-        //TODO allow using top_rated as sort path and error check
-        String sortMethod = "top_";
+        //TODO implement way for user to select sort method
+        String sortMethod = "popular";
 
         moviesTask.execute(sortMethod);
     }
@@ -226,17 +226,18 @@ public class MovieListFragment extends Fragment {
                     }
                 }
 
-                //TODO we know that there are 20 results per page but is there a better way to establish this?
-                int numResultsPerPg = 20;
-                String[] movies = new String[numResultsPerPg];
+
+
                 try {
-                    movies = getMoviesDataFromJson(moviesJsonStr, numResultsPerPg);
+                    String[] movies = getMoviesDataFromJson(moviesJsonStr);
+                    return movies;
                 } catch (JSONException e) {
                     Log.e(LOG_TAG, "Error ", e);
+                    return null;
                 }
 
 
-                return movies;
+                //return movies;
             }
         }
 
@@ -270,7 +271,7 @@ public class MovieListFragment extends Fragment {
          * Take the String representing the complete forecast in JSON Format and
          * pull out the data we need to construct the Strings needed
          */
-        private String[] getMoviesDataFromJson(String forecastJsonStr, int numDays)
+        private String[] getMoviesDataFromJson(String forecastJsonStr)
                 throws JSONException {
 
             // These are the names of the JSON objects that need to be extracted.
