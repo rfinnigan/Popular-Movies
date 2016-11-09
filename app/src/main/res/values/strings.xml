@@ -12,4 +12,7 @@
 
     <!-- Default postal code for api preference [CHAR LIMIT=NONE] -->
     <string name="pref_api_default" translatable="false">000000000</string>
+
+    <!-- Toast message shown to user when no data is retrieved from TMDB -->
+    <string name="toast_no_data_retrieved">Failed to retrieve data from TMDB. Have you set the API Key?</string>
 </resources>

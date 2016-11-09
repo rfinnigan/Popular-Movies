@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,6 +28,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+
 
 import static com.rfinnigan.popular_movies.R.menu.movielistfragment;
 
@@ -120,6 +122,7 @@ public class MovieListFragment extends Fragment {
         String sortMethod = "top_rated";
 
         moviesTask.execute(sortMethod);
+
     }
 
     public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
@@ -147,7 +150,7 @@ public class MovieListFragment extends Fragment {
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
             String apiKey = sharedPref.getString(getString(R.string.pref_api_key), getString(R.string.pref_api_default));
-            ; //TODO before uploading to play store have this read from somewhere, not a user preference
+             //TODO before uploading to play store have this read from somewhere, not a user preference
 
 
             String language = "en-UK";
@@ -189,6 +192,7 @@ public class MovieListFragment extends Fragment {
                 urlConnection.connect();
 
                 // Read the input stream into a String
+
                 InputStream inputStream = urlConnection.getInputStream();
                 StringBuffer buffer = new StringBuffer();
                 if (inputStream == null) {
@@ -233,15 +237,19 @@ public class MovieListFragment extends Fragment {
                 }
 
 
-
-                try {
-                    Movie[] movies = getMoviesDataFromJson(moviesJsonStr);
-                    return movies;
-                } catch (JSONException e) {
-                    Log.e(LOG_TAG, "Error ", e);
+                if (moviesJsonStr != null) {
+                    try {
+                        Movie[] movies = getMoviesDataFromJson(moviesJsonStr);
+                        return movies;
+                    } catch (JSONException e) {
+                        Log.e(LOG_TAG, "Error ", e);
+                        return null;
+                    }
+                }
+                else {
+                    Log.e(LOG_TAG, "failed to get JSON, is the API Key Correctly set?");
                     return null;
                 }
-
 
 
             }
@@ -252,11 +260,10 @@ public class MovieListFragment extends Fragment {
         @NonNull
         private String getSortMethod(String param) {
             String sorting = "popular";
-            if(param.equals("top_rated")){
+            if (param.equals("top_rated")) {
                 sorting = "top_rated";
-            }
-            else if (!param.equals("popular")){
-                Log.d(LOG_TAG, "Unknown sorting method using "+sorting);
+            } else if (!param.equals("popular")) {
+                Log.d(LOG_TAG, "Unknown sorting method using " + sorting);
             }
             return sorting;
         }
@@ -268,9 +275,12 @@ public class MovieListFragment extends Fragment {
                 for (Movie movie : results) {
                     //TODO more efficient to use addall for OS after Honeycomb
                     mMovieAdapter.add(movie);
-                    Log.v(LOG_TAG, "added result "+ movie.getTitle() + " to adapter");
+                    //Log.v(LOG_TAG, "added result "+ movie.getTitle() + " to adapter");
                 }
                 // New data is back from the server.  Hooray!
+            }
+            else if (results == null){
+                Toast.makeText(getContext(),getContext().getResources().getString(R.string.toast_no_data_retrieved), Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -312,7 +322,7 @@ public class MovieListFragment extends Fragment {
                 id = movieDetails.getString(TMDB_ID);
 
 
-                resultStrs[i] = new Movie(title,id,posterPath);
+                resultStrs[i] = new Movie(title, id, posterPath);
                 //Log.v(LOG_TAG, "Movie " + i + ": " + resultStrs[i].getTitle() + resultStrs[i].getPoster() );
             }
 
