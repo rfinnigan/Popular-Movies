@@ -14,7 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
+import android.widget.GridView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,8 +43,15 @@ public class MovieListFragment extends Fragment {
 
     @Override
     public void onStart() {
-        super.onStart();
         updateMovies();
+        super.onStart();
+
+    }
+
+    @Override
+    public void onResume() {
+        updateMovies();
+        super.onResume();
     }
 
     @Override
@@ -67,9 +74,9 @@ public class MovieListFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        //get a reference to the listView and attach this adapter to it
-        ListView listView = (ListView) rootView.findViewById(R.id.listview_movies);
-        listView.setAdapter(mMovieAdapter);
+        //get a reference to the gridView and attach this adapter to it
+        GridView gridView = (GridView) rootView.findViewById(R.id.gridview_movies);
+        gridView.setAdapter(mMovieAdapter);
 
 
         return rootView;
@@ -102,13 +109,15 @@ public class MovieListFragment extends Fragment {
     }
 
     private void updateMovies() {
-        mMovieAdapter.clear();
 
+        if (!mMovieAdapter.isEmpty()) {
+            mMovieAdapter.clear();
+        }
 
         FetchMoviesTask moviesTask = new FetchMoviesTask();
 
         //TODO implement way for user to select sort method
-        String sortMethod = "popular";
+        String sortMethod = "top_rated";
 
         moviesTask.execute(sortMethod);
     }
@@ -171,7 +180,7 @@ public class MovieListFragment extends Fragment {
 
                 URL url = new URL(builtUri.toString());
 
-                Log.v(LOG_TAG, "Using URL: " + url);
+                //Log.v(LOG_TAG, "Using URL: " + url);
 
 
                 // Create the request to TheMovieDB, and open the connection
@@ -204,7 +213,7 @@ public class MovieListFragment extends Fragment {
                     return null;
                 }
                 moviesJsonStr = buffer.toString();
-                Log.v(LOG_TAG, "retrieved JSON String: " + moviesJsonStr);
+                //Log.v(LOG_TAG, "retrieved JSON String: " + moviesJsonStr);
 
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
@@ -247,7 +256,7 @@ public class MovieListFragment extends Fragment {
                 sorting = "top_rated";
             }
             else if (!param.equals("popular")){
-                Log.v(LOG_TAG, "Unknown sorting method using "+sorting);
+                Log.d(LOG_TAG, "Unknown sorting method using "+sorting);
             }
             return sorting;
         }
@@ -259,6 +268,7 @@ public class MovieListFragment extends Fragment {
                 for (Movie movie : results) {
                     //TODO more efficient to use addall for OS after Honeycomb
                     mMovieAdapter.add(movie);
+                    Log.v(LOG_TAG, "added result "+ movie.getTitle() + " to adapter");
                 }
                 // New data is back from the server.  Hooray!
             }
@@ -303,7 +313,7 @@ public class MovieListFragment extends Fragment {
 
 
                 resultStrs[i] = new Movie(title,id,posterPath);
-                Log.v(LOG_TAG, "Movie " + i + ": " + resultStrs[i].getTitle() + resultStrs[i].getPoster() );
+                //Log.v(LOG_TAG, "Movie " + i + ": " + resultStrs[i].getTitle() + resultStrs[i].getPoster() );
             }
 
 

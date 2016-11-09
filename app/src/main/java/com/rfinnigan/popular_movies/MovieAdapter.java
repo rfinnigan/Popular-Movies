@@ -2,7 +2,6 @@ package com.rfinnigan.popular_movies;
 
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,6 +62,10 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
 
         ImageView posterImage = (ImageView) convertView.findViewById(R.id.list_item_movie_imageView);
 
+
+
+
+
         // Construct the URL for the theMovieDB query
 
 
@@ -82,7 +85,10 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
 
         String url = builtUri.toString();
 
-        Log.v(LOG_TAG, "Using Poster URL: " + url);
+        //Log.v(LOG_TAG, "Using Poster URL: " + url);
+
+
+        posterImage.setAdjustViewBounds(true);
 
         Picasso.with(getContext()).load(url).into(posterImage);
 
