@@ -16,4 +16,16 @@ public class Movie {
         this.id=mId;
         this.poster=mPoster;
     }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getPoster() {
+        return poster;
+    }
 }

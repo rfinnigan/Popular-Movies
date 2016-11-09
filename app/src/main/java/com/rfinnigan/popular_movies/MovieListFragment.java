@@ -116,13 +116,13 @@ public class MovieListFragment extends Fragment {
         moviesTask.execute(sortMethod);
     }
 
-    public class FetchMoviesTask extends AsyncTask<String, Void, String[]> {
+    public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
 
 
         private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
 
         @Override
-        protected String[] doInBackground(String... params) {
+        protected Movie[] doInBackground(String... params) {
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
@@ -229,7 +229,7 @@ public class MovieListFragment extends Fragment {
 
 
                 try {
-                    String[] movies = getMoviesDataFromJson(moviesJsonStr);
+                    Movie[] movies = getMoviesDataFromJson(moviesJsonStr);
                     return movies;
                 } catch (JSONException e) {
                     Log.e(LOG_TAG, "Error ", e);
@@ -237,7 +237,7 @@ public class MovieListFragment extends Fragment {
                 }
 
 
-                //return movies;
+
             }
         }
 
@@ -256,12 +256,12 @@ public class MovieListFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(String[] results) {
+        protected void onPostExecute(Movie[] results) {
             if (results != null) {
                 mMovieAdapter.clear();
-                for (String movieString : results) {
+                for (Movie movie : results) {
                     //TODO more efficient to use addall for OS after Honeycomb
-                    mMovieAdapter.add(movieString);
+                    mMovieAdapter.add(movie.getTitle());
                 }
                 // New data is back from the server.  Hooray!
             }
@@ -271,7 +271,7 @@ public class MovieListFragment extends Fragment {
          * Take the String representing the complete forecast in JSON Format and
          * pull out the data we need to construct the Strings needed
          */
-        private String[] getMoviesDataFromJson(String forecastJsonStr)
+        private Movie[] getMoviesDataFromJson(String forecastJsonStr)
                 throws JSONException {
 
             // These are the names of the JSON objects that need to be extracted.
@@ -288,7 +288,7 @@ public class MovieListFragment extends Fragment {
             It returns 20 per page
             */
 
-            String[] resultStrs = new String[moviesArray.length()];
+            Movie[] resultStrs = new Movie[moviesArray.length()];
             for (int i = 0; i < moviesArray.length(); i++) {
                 // For now, using the format "Day, description, hi/low"
                 String title;
@@ -305,8 +305,8 @@ public class MovieListFragment extends Fragment {
                 id = movieDetails.getString(TMDB_ID);
 
 
-                resultStrs[i] = title + " - " + posterPath + " - " + id;
-                Log.v(LOG_TAG, "Movie " + i + ": " + resultStrs[i]);
+                resultStrs[i] = new Movie(title,id,posterPath);
+                Log.v(LOG_TAG, "Movie " + i + ": " + resultStrs[i].getTitle() );
             }
 
 
