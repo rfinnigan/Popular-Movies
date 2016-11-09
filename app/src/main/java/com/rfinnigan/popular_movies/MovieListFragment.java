@@ -16,6 +16,10 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -99,10 +103,7 @@ public class MovieListFragment extends Fragment {
 
     private void updateMovies() {
         mMovieAdapter.clear();
-        for (int i = 0; i < 10; i++) {
-            mMovieAdapter.add("Movie " + i);
 
-        }
 
         FetchMoviesTask moviesTask = new FetchMoviesTask();
 
@@ -132,10 +133,6 @@ public class MovieListFragment extends Fragment {
 
             // Will contain the raw JSON response as a string.
             String moviesJsonStr = null;
-
-            //TODO delete this
-            //full query
-            //https://api.themoviedb.org/3/movie/popular?api_key=################&language=en-UK
 
 
             //declare parameters of query
@@ -221,20 +218,80 @@ public class MovieListFragment extends Fragment {
                         Log.e(LOG_TAG, "Error closing stream", e);
                     }
                 }
-                /*String[] forecasts = new String[numDays];
+
+                //TODO we know that there are 20 results per page but is there a better way to establish this?
+                int numResultsPerPg = 20;
+                String[] movies = new String[numResultsPerPg];
                 try {
-                    forecasts = getWeatherDataFromJson(moviesJsonStr, numDays);
+                    movies = getMoviesDataFromJson(moviesJsonStr, numResultsPerPg);
                 } catch (JSONException e) {
                     Log.e(LOG_TAG, "Error ", e);
                 }
-                */
 
-                //TODO make this actually return something
-                return null;
+
+
+                return movies;
             }
         }
 
+        @Override
+        protected void onPostExecute(String[] results) {
+            if (results != null) {
+                mMovieAdapter.clear();
+                for (String movieString : results) {
+                    //TODO more efficient to use addall for OS after Honeycomb
+                    mMovieAdapter.add(movieString);
+                }
+                // New data is back from the server.  Hooray!
+            }
+        }
 
+        /**
+         * Take the String representing the complete forecast in JSON Format and
+         * pull out the data we need to construct the Strings needed
+         */
+        private String[] getMoviesDataFromJson(String forecastJsonStr, int numDays)
+                throws JSONException {
+
+            // These are the names of the JSON objects that need to be extracted.
+            final String TMDB_RESULTS = "results";
+            final String TMDB_TITLE ="title";
+            final String TMDB_POSTERPATH = "poster_path";
+            final String TMDB_ID = "id";
+
+
+            JSONObject moviesJson = new JSONObject(forecastJsonStr);
+            JSONArray moviesArray = moviesJson.getJSONArray(TMDB_RESULTS);
+
+            /* TMDB returns Movies sorted either by rating or popularity depending on the query
+            It returns 20 per page
+            */
+
+            String[] resultStrs = new String[moviesArray.length()];
+            for (int i = 0; i < moviesArray.length(); i++) {
+                // For now, using the format "Day, description, hi/low"
+                String title;
+                String posterPath;
+                String id;
+
+                // Get the JSON object representing the Movie
+                JSONObject movieDetails = moviesArray.getJSONObject(i);
+
+                // get strings from object
+
+                title = movieDetails.getString(TMDB_TITLE);
+                posterPath = movieDetails.getString(TMDB_POSTERPATH);
+                id = movieDetails.getString(TMDB_ID);
+
+
+                resultStrs[i] = title + " - " + posterPath + " - " + id;
+                Log.v(LOG_TAG, "Movie " + i + ": " +resultStrs[i]);
+            }
+
+
+            return resultStrs;
+
+        }
 
 
 
