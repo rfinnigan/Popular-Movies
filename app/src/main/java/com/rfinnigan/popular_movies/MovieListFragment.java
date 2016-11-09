@@ -14,7 +14,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import org.json.JSONArray;
@@ -37,7 +36,7 @@ import static com.rfinnigan.popular_movies.R.menu.movielistfragment;
 
 public class MovieListFragment extends Fragment {
     private final String LOG_TAG = MovieListFragment.class.getSimpleName();
-    private ArrayAdapter<String> mMovieAdapter;
+    private MovieAdapter mMovieAdapter;
 
     public MovieListFragment() {
     }
@@ -61,11 +60,9 @@ public class MovieListFragment extends Fragment {
 
         //the arrayadapter will take data from a source
         //and use it to populate the ListView it's attached to
-        mMovieAdapter = new ArrayAdapter(
+        mMovieAdapter = new MovieAdapter(
                 getActivity(), //the current context
-                R.layout.list_item_movie, //the name of the layout ID
-                R.id.list_item_movie_textview, // the ID of the textview to populate
-                new ArrayList<String>()); //new empty arraylist
+                new ArrayList<Movie>()); //new empty arraylist
 
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
@@ -261,7 +258,7 @@ public class MovieListFragment extends Fragment {
                 mMovieAdapter.clear();
                 for (Movie movie : results) {
                     //TODO more efficient to use addall for OS after Honeycomb
-                    mMovieAdapter.add(movie.getTitle());
+                    mMovieAdapter.add(movie);
                 }
                 // New data is back from the server.  Hooray!
             }
@@ -301,12 +298,12 @@ public class MovieListFragment extends Fragment {
                 // get strings from object
 
                 title = movieDetails.getString(TMDB_TITLE);
-                posterPath = movieDetails.getString(TMDB_POSTERPATH);
+                posterPath = movieDetails.getString(TMDB_POSTERPATH).substring(1);//the API returns the poster path preceeded by a "/" we ignore this first character
                 id = movieDetails.getString(TMDB_ID);
 
 
                 resultStrs[i] = new Movie(title,id,posterPath);
-                Log.v(LOG_TAG, "Movie " + i + ": " + resultStrs[i].getTitle() );
+                Log.v(LOG_TAG, "Movie " + i + ": " + resultStrs[i].getTitle() + resultStrs[i].getPoster() );
             }
 
 
