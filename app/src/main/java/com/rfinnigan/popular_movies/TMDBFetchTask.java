@@ -21,12 +21,12 @@ import java.net.URL;
  * Any processing of JSON should be done in postExecute
  */
 
-public abstract class TMDBFetchTask <Params,Progress, Result> extends AsyncTask <String, Progress, String>{
+public abstract class TMDBFetchTask <Params,Progress, Result> extends AsyncTask <Params, Progress, String>{
 
     protected final String LOG_TAG = TMDBFetchTask.class.getSimpleName();
 
     @Override
-    protected String doInBackground(String... params) {
+    protected String doInBackground(Params... params) {
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
@@ -126,5 +126,5 @@ public abstract class TMDBFetchTask <Params,Progress, Result> extends AsyncTask 
     //protected abstract void setURLVariables(String[] param);
 
     //should be overwritten to build URL from given params
-    protected abstract URL buildUrl(String[] param) throws MalformedURLException;
+    protected abstract URL buildUrl(Params[] param) throws MalformedURLException;
 }

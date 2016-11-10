@@ -7,9 +7,9 @@ package com.rfinnigan.popular_movies;
  */
 
 public class Movie {
-    String title;
-    String id;
-    String poster;
+    private String title;
+    private String id;
+    private String poster;
 
     public Movie(String mTitle,String mId, String mPoster){
         this.title=mTitle;

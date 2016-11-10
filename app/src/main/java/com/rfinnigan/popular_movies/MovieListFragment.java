@@ -1,5 +1,7 @@
 package com.rfinnigan.popular_movies;
 
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
@@ -74,6 +77,26 @@ public class MovieListFragment extends Fragment {
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview_movies);
         gridView.setAdapter(mMovieAdapter);
 
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+
+                //declare the context and duration of the intent message
+                Context context = getActivity();
+                Movie movie = mMovieAdapter.getItem(i);
+
+                //declare the intent to launch DetailActivity and start the activity
+                Intent detailIntent = new Intent(context, DetailActivity.class);
+
+                //add movie ID at position clicked
+                // we can rebuild the Movie object from this in the detail activity
+                // when we query TMDB for the extra info
+                detailIntent.putExtra(Intent.EXTRA_TEXT, movie.getId());
+                startActivity(detailIntent);
+            }
+
+        });
 
         return rootView;
     }
@@ -219,6 +242,10 @@ public class MovieListFragment extends Fragment {
             final String TMDB_TITLE = "title";
             final String TMDB_POSTERPATH = "poster_path";
             final String TMDB_ID = "id";
+            final String TMDB_OVERVIEW ="overview";
+            final String TMDB_RATING = "vote_average";
+            final String TMDB_VOTE_COUNT = "vote_count";
+            final String TMDB_RELEASE_DATE = "release_date";
 
 
             JSONObject moviesJson = new JSONObject(forecastJsonStr);
@@ -228,7 +255,7 @@ public class MovieListFragment extends Fragment {
             It returns 20 per page
             */
 
-            Movie[] resultStrs = new Movie[moviesArray.length()];
+            Movie[] resultMovies = new Movie[moviesArray.length()];
             for (int i = 0; i < moviesArray.length(); i++) {
                 // For now, using the format "Day, description, hi/low"
                 String title;
@@ -245,12 +272,12 @@ public class MovieListFragment extends Fragment {
                 id = movieDetails.getString(TMDB_ID);
 
 
-                resultStrs[i] = new Movie(title, id, posterPath);
-                //Log.v(LOG_TAG, "Movie " + i + ": " + resultStrs[i].getTitle() + resultStrs[i].getPoster() );
+                resultMovies[i] = new Movie(title, id, posterPath);
+                //Log.v(LOG_TAG, "Movie " + i + ": " + resultMovies[i].getTitle() + resultMovies[i].getPoster() );
             }
 
 
-            return resultStrs;
+            return resultMovies;
 
         }
 

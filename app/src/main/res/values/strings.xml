@@ -6,6 +6,7 @@
     <string name="action_sort_popular">Popular</string>
     <string name="action_sort_toprated">Top Rated</string>
     <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_activity_detail">Movie Details</string>
 
     <!-- values for the sort options popular or top_rated, do not change these as they are used by the API request-->
     <string name="sort_popular" translatable="false">popular</string>
