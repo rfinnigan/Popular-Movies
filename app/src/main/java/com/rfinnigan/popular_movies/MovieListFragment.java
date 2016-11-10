@@ -40,6 +40,8 @@ public class MovieListFragment extends Fragment {
     private final String LOG_TAG = MovieListFragment.class.getSimpleName();
     private MovieAdapter mMovieAdapter;
 
+    private String sortMethod;
+
     public MovieListFragment() {
     }
 
@@ -61,6 +63,7 @@ public class MovieListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         // Add this line in order for this fragment to handle menu events.
         setHasOptionsMenu(true);
+        sortMethod= getString(R.string.sort_popular);
     }
 
     @Override
@@ -105,6 +108,22 @@ public class MovieListFragment extends Fragment {
 
             return true;
         }
+        else if(id == R.id.action_sort_popular){
+            if (sortMethod!=getString(R.string.sort_popular)){
+                item.setChecked(true);
+                sortMethod=getString(R.string.sort_popular);
+                updateMovies();
+
+            }
+        }
+        else if(id == R.id.action_sort_toprated){
+            if (sortMethod!=getString(R.string.sort_toprated)){
+                item.setChecked(true);
+                sortMethod=getString(R.string.sort_toprated);
+                updateMovies();
+
+            }
+        }
 
 
         return super.onOptionsItemSelected(item);
@@ -118,8 +137,6 @@ public class MovieListFragment extends Fragment {
 
         FetchMoviesTask moviesTask = new FetchMoviesTask();
 
-        //TODO implement way for user to select sort method
-        String sortMethod = "top_rated";
 
         moviesTask.execute(sortMethod);
 
@@ -150,7 +167,7 @@ public class MovieListFragment extends Fragment {
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
             String apiKey = sharedPref.getString(getString(R.string.pref_api_key), getString(R.string.pref_api_default));
-             //TODO before uploading to play store have this read from somewhere, not a user preference
+            //TODO before uploading to play store have this read from somewhere, not a user preference
 
 
             String language = "en-UK";
@@ -245,8 +262,7 @@ public class MovieListFragment extends Fragment {
                         Log.e(LOG_TAG, "Error ", e);
                         return null;
                     }
-                }
-                else {
+                } else {
                     Log.e(LOG_TAG, "failed to get JSON, is the API Key Correctly set?");
                     return null;
                 }
@@ -259,10 +275,10 @@ public class MovieListFragment extends Fragment {
 
         @NonNull
         private String getSortMethod(String param) {
-            String sorting = "popular";
-            if (param.equals("top_rated")) {
-                sorting = "top_rated";
-            } else if (!param.equals("popular")) {
+            String sorting = getString(R.string.sort_popular);
+            if (param.equals(getString(R.string.sort_toprated))) {
+                sorting = param;
+            } else if (!param.equals(getString(R.string.sort_popular))) {
                 Log.d(LOG_TAG, "Unknown sorting method using " + sorting);
             }
             return sorting;
@@ -278,9 +294,8 @@ public class MovieListFragment extends Fragment {
                     //Log.v(LOG_TAG, "added result "+ movie.getTitle() + " to adapter");
                 }
                 // New data is back from the server.  Hooray!
-            }
-            else if (results == null){
-                Toast.makeText(getContext(),getContext().getResources().getString(R.string.toast_no_data_retrieved), Toast.LENGTH_SHORT).show();
+            } else if (results == null) {
+                Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_no_data_retrieved), Toast.LENGTH_SHORT).show();
             }
         }
 
