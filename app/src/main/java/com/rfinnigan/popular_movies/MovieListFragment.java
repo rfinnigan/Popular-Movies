@@ -1,11 +1,7 @@
 package com.rfinnigan.popular_movies;
 
-import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,14 +17,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-
 
 import static com.rfinnigan.popular_movies.R.menu.movielistfragment;
 
@@ -63,7 +54,7 @@ public class MovieListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         // Add this line in order for this fragment to handle menu events.
         setHasOptionsMenu(true);
-        sortMethod= getString(R.string.sort_popular);
+        sortMethod = getString(R.string.sort_popular);
     }
 
     @Override
@@ -107,19 +98,17 @@ public class MovieListFragment extends Fragment {
             updateMovies();
 
             return true;
-        }
-        else if(id == R.id.action_sort_popular){
-            if (sortMethod!=getString(R.string.sort_popular)){
+        } else if (id == R.id.action_sort_popular) {
+            if (sortMethod != getString(R.string.sort_popular)) {
                 item.setChecked(true);
-                sortMethod=getString(R.string.sort_popular);
+                sortMethod = getString(R.string.sort_popular);
                 updateMovies();
 
             }
-        }
-        else if(id == R.id.action_sort_toprated){
-            if (sortMethod!=getString(R.string.sort_toprated)){
+        } else if (id == R.id.action_sort_toprated) {
+            if (sortMethod != getString(R.string.sort_toprated)) {
                 item.setChecked(true);
-                sortMethod=getString(R.string.sort_toprated);
+                sortMethod = getString(R.string.sort_toprated);
                 updateMovies();
 
             }
@@ -142,159 +131,78 @@ public class MovieListFragment extends Fragment {
 
     }
 
-    public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
+    public class FetchMoviesTask extends TMDBFetchTask<String, Void, String> {
 
 
         private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
 
+
+        //variables used to build URL
+        private String language;
+        private String page;//TODO allow changing the page
+        private String sorting;
+
         @Override
-        protected Movie[] doInBackground(String... params) {
-            // These two need to be declared outside the try/catch
-            // so that they can be closed in the finally block.
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-            if (params.length == 0) {
-                //if no parameters passed in dont do anything
-                return null;
-            }
+        protected URL buildUrl(String[] param) throws MalformedURLException {
 
+            // Construct the URL for the theMovieDB query
+            setURLVariables(param);
 
-            // Will contain the raw JSON response as a string.
-            String moviesJsonStr = null;
+            final String MOVIES_BASE_URL = "https://api.themoviedb.org/3/movie";
+            final String APIKEY_PARAM = "api_key";
+            final String LANGUAGE_PARAM = "mode";
+            final String PAGE_PARAM = "page";
 
+            String apiKey = getTMDBApiKey(getActivity());
 
-            //declare parameters of query getting API from shared prefs
-            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            Uri builtUri = Uri.parse(MOVIES_BASE_URL);
+            builtUri = builtUri.buildUpon().appendPath(sorting)
+                    .appendQueryParameter(APIKEY_PARAM, apiKey)
+                    .appendQueryParameter(LANGUAGE_PARAM, language)
+                    .appendQueryParameter(PAGE_PARAM, page)
+                    .build();
 
-            String apiKey = sharedPref.getString(getString(R.string.pref_api_key), getString(R.string.pref_api_default));
-            //TODO before uploading to play store have this read from somewhere, not a user preference
-
-
-            String language = "en-UK";
-
-            //TODO allow changing the page
-            String page = "1";
-
-            //declare how the movies will be sorted
-
-            String sorting = getSortMethod(params[0]);
-
-            try {
-
-                // Construct the URL for the theMovieDB query
-
-
-                final String MOVIES_BASE_URL = "https://api.themoviedb.org/3/movie";
-
-                final String APIKEY_PARAM = "api_key";
-                final String LANGUAGE_PARAM = "mode";
-                final String PAGE_PARAM = "page";
-
-
-                Uri builtUri = Uri.parse(MOVIES_BASE_URL);
-                builtUri = builtUri.buildUpon().appendPath(sorting)
-                        .appendQueryParameter(APIKEY_PARAM, apiKey)
-                        .appendQueryParameter(LANGUAGE_PARAM, language)
-                        .appendQueryParameter(PAGE_PARAM, page)
-                        .build();
-
-                URL url = new URL(builtUri.toString());
-
-                //Log.v(LOG_TAG, "Using URL: " + url);
-
-
-                // Create the request to TheMovieDB, and open the connection
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                // Read the input stream into a String
-
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream == null) {
-                    // Nothing to do.
-                    Log.d(LOG_TAG, "input stream is null");
-                    return null;
-                }
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                    // But it does make debugging a *lot* easier if you print out the completed
-                    // buffer for debugging.
-                    buffer.append(line + "\n");
-
-                }
-
-                if (buffer.length() == 0) {
-                    // Stream was empty.  No point in parsing.
-                    Log.d(LOG_TAG, "stream was empty");
-                    return null;
-                }
-                moviesJsonStr = buffer.toString();
-                //Log.v(LOG_TAG, "retrieved JSON String: " + moviesJsonStr);
-
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "Error ", e);
-                // If the code didn't successfully get the weather data, there's no point in attemping
-                // to parse it.
-                return null;
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (final IOException e) {
-                        Log.e(LOG_TAG, "Error closing stream", e);
-                    }
-                }
-
-
-                if (moviesJsonStr != null) {
-                    try {
-                        Movie[] movies = getMoviesDataFromJson(moviesJsonStr);
-                        return movies;
-                    } catch (JSONException e) {
-                        Log.e(LOG_TAG, "Error ", e);
-                        return null;
-                    }
-                } else {
-                    Log.e(LOG_TAG, "failed to get JSON, is the API Key Correctly set?");
-                    return null;
-                }
-
-
-            }
+            return new URL(builtUri.toString());
         }
 
-        //method to check that sorting method passed in is valid
+        //overwritten method to set the variables for the URL
+        //@Override
+        protected void setURLVariables(String[] param) {
 
-        @NonNull
-        private String getSortMethod(String param) {
-            String sorting = getString(R.string.sort_popular);
-            if (param.equals(getString(R.string.sort_toprated))) {
-                sorting = param;
+            language = "en-UK";
+
+            //TODO allow changing the page
+            page = "1";
+
+            //declare how the movies will be sorted and check that it is a valid sort method
+            sorting = getString(R.string.sort_popular);
+            if (param[0].equals(getString(R.string.sort_toprated))) {
+                sorting = param[0];
             } else if (!param.equals(getString(R.string.sort_popular))) {
                 Log.d(LOG_TAG, "Unknown sorting method using " + sorting);
             }
-            return sorting;
+
         }
 
+
         @Override
-        protected void onPostExecute(Movie[] results) {
-            if (results != null) {
+        protected void onPostExecute(String result) {
+            if (result != null) {
                 mMovieAdapter.clear();
-                for (Movie movie : results) {
-                    //TODO more efficient to use addall for OS after Honeycomb
-                    mMovieAdapter.add(movie);
-                    //Log.v(LOG_TAG, "added result "+ movie.getTitle() + " to adapter");
+                try {
+                    Movie[] movies = getMoviesDataFromJson(result);
+                    for (Movie movie : movies) {
+                        //TODO more efficient to use addall for OS after Honeycomb
+
+                        mMovieAdapter.add(movie);
+                        //Log.v(LOG_TAG, "added result "+ movie.getTitle() + " to adapter");
+                    }
+                } catch (JSONException e) {
+                    Log.e(LOG_TAG, "Error ", e);
                 }
+
                 // New data is back from the server.  Hooray!
-            } else if (results == null) {
+            } else if (result == null) {
                 Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_no_data_retrieved), Toast.LENGTH_SHORT).show();
             }
         }
