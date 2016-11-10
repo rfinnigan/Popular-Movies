@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -73,7 +74,7 @@ public class DetailActivity extends ActionBarActivity {
 
 
         private final String LOG_TAG = DetailFragment.class.getSimpleName();
-        private String mMovieId;
+        private Movie mMovie;
 
 
         public DetailFragment() {
@@ -93,13 +94,15 @@ public class DetailActivity extends ActionBarActivity {
             Intent intent = getActivity().getIntent();
 
             //check the intent exists and has the correct extras
-            if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
+            if (intent != null && intent.hasExtra(MovieListFragment.EXTRA_MOVIE)) {
 
                 //extract the String extra with the forecast info
-                mMovieId = intent.getStringExtra(Intent.EXTRA_TEXT);
+                mMovie = (Movie)intent.getParcelableExtra(MovieListFragment.EXTRA_MOVIE);
 
                 //set the text in the textView
-                ((TextView) rootView.findViewById(R.id.detail_text)).setText(mMovieId);
+                ((TextView) rootView.findViewById(R.id.detail_text)).setText(mMovie.getTitle());
+                Log.v(LOG_TAG,"Movie Title: " + mMovie.getTitle());
+
             }
 
             return rootView;

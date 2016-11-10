@@ -32,6 +32,7 @@ import static com.rfinnigan.popular_movies.R.menu.movielistfragment;
 
 public class MovieListFragment extends Fragment {
     private final String LOG_TAG = MovieListFragment.class.getSimpleName();
+    public static final String EXTRA_MOVIE = "movie";
     private MovieAdapter mMovieAdapter;
 
     private String sortMethod;
@@ -89,10 +90,9 @@ public class MovieListFragment extends Fragment {
                 //declare the intent to launch DetailActivity and start the activity
                 Intent detailIntent = new Intent(context, DetailActivity.class);
 
-                //add movie ID at position clicked
-                // we can rebuild the Movie object from this in the detail activity
-                // when we query TMDB for the extra info
-                detailIntent.putExtra(Intent.EXTRA_TEXT, movie.getId());
+                //add Movie object at position clicked
+
+                detailIntent.putExtra(EXTRA_MOVIE,movie);
                 startActivity(detailIntent);
             }
 
@@ -201,8 +201,8 @@ public class MovieListFragment extends Fragment {
             sorting = getString(R.string.sort_popular);
             if (param[0].equals(getString(R.string.sort_toprated))) {
                 sorting = param[0];
-            } else if (!param.equals(getString(R.string.sort_popular))) {
-                Log.d(LOG_TAG, "Unknown sorting method using " + sorting);
+            } else if (!param[0].equals(getString(R.string.sort_popular))) {
+                Log.d(LOG_TAG, "Unknown sorting method: "+ param[0] + ", using " + sorting);
             }
 
         }

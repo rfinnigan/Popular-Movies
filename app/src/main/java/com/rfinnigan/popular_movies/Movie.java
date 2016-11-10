@@ -6,7 +6,7 @@ import android.os.Parcelable;
 
 /**
  * Created by Ruairidh Finnigan on 09/11/2016.
- * basic class to hold info about Movie
+ * Basic class to hold info about Movie
  */
 
 public class Movie implements Parcelable{

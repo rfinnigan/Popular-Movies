@@ -49,7 +49,7 @@ public abstract class TMDBFetchTask <Params,Progress, Result> extends AsyncTask 
         try {
             URL url = buildUrl(params);
 
-            Log.v(LOG_TAG, "Using URL: " + url);
+            //Log.v(LOG_TAG, "Using URL: " + url);
 
 
             // Create the request to TheMovieDB, and open the connection
