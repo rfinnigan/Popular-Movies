@@ -267,12 +267,19 @@ public class MovieListFragment extends Fragment {
 
                 // get strings from object
 
-                title = movieDetails.getString(TMDB_TITLE);
-                posterPath = movieDetails.getString(TMDB_POSTERPATH).substring(1);//the API returns the poster path preceeded by a "/" we ignore this first character
-                id = movieDetails.getString(TMDB_ID);
+                //the API returns the poster path preceeded by a "/" we ignore this first character
+                posterPath = movieDetails.getString(TMDB_POSTERPATH).substring(1);
 
 
-                resultMovies[i] = new Movie(title, id, posterPath);
+                //the rest of the details are as formatted by TMDB so we grab them directly to construct a Movie object
+                resultMovies[i] = new Movie(movieDetails.getString(TMDB_TITLE),
+                        movieDetails.getString(TMDB_ID),
+                        posterPath,
+                        movieDetails.getString(TMDB_RELEASE_DATE),
+                        movieDetails.getString(TMDB_OVERVIEW),
+                        movieDetails.getString(TMDB_RATING),
+                        movieDetails.getString(TMDB_VOTE_COUNT));
+
                 //Log.v(LOG_TAG, "Movie " + i + ": " + resultMovies[i].getTitle() + resultMovies[i].getPoster() );
             }
 
