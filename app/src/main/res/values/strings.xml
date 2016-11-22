@@ -23,4 +23,30 @@
 
     <!-- Toast message shown to user when no data is retrieved from TMDB -->
     <string name="toast_no_data_retrieved">Failed to retrieve data from TMDB. Have you set the API Key?</string>
+
+    <!--Abbreviated January [CHAR LIMIT = 3]-->
+    <string name="month_jan">Jan</string>
+    <!--Abbreviated February [CHAR LIMIT = 3]-->
+    <string name="month_feb">Feb</string>
+    <!--Abbreviated March [CHAR LIMIT = 3]-->
+    <string name="month_mar">Mar</string>
+    <!--Abbreviated April [CHAR LIMIT = 3]-->
+    <string name="month_apr">Apr</string>
+    <!--Abbreviated May [CHAR LIMIT = 3]-->
+    <string name="month_may">May</string>
+    <!--Abbreviated June [CHAR LIMIT = 3]-->
+    <string name="month_jun">Jun</string>
+    <!--Abbreviated July [CHAR LIMIT = 3]-->
+    <string name="month_jul">Jul</string>
+    <!--Abbreviated August [CHAR LIMIT = 3]-->
+    <string name="month_aug">Aug</string>
+    <!--Abbreviated September [CHAR LIMIT = 3]-->
+    <string name="month_sep">Sep</string>
+    <!--Abbreviated October [CHAR LIMIT = 3]-->
+    <string name="month_oct">Oct</string>
+    <!--Abbreviated November [CHAR LIMIT = 3]-->
+    <string name="month_nov">Nov</string>
+    <!--Abbreviated December [CHAR LIMIT = 3]-->
+    <string name="month_dec">Dec</string>
+
 </resources>

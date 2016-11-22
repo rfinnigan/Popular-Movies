@@ -20,13 +20,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 public class DetailActivity extends ActionBarActivity {
 
@@ -36,7 +38,7 @@ public class DetailActivity extends ActionBarActivity {
         setContentView(R.layout.activity_detail);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new DetailFragment())
+                    .add(R.id.detail_container, new DetailFragment())
                     .commit();
         }
     }
@@ -67,6 +69,11 @@ public class DetailActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    //simple method to set action bar title from fragments
+    public void setActionBarTitle(String title) {
+        getSupportActionBar().setTitle(title);
+    }
+
     /**
      * A  fragment containing a simple view.
      */
@@ -82,7 +89,6 @@ public class DetailActivity extends ActionBarActivity {
         }
 
 
-
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
@@ -96,16 +102,34 @@ public class DetailActivity extends ActionBarActivity {
             //check the intent exists and has the correct extras
             if (intent != null && intent.hasExtra(MovieListFragment.EXTRA_MOVIE)) {
 
-                //extract the String extra with the forecast info
-                mMovie = (Movie)intent.getParcelableExtra(MovieListFragment.EXTRA_MOVIE);
+                //extract the Movie object from the intent
+                mMovie = intent.getParcelableExtra(MovieListFragment.EXTRA_MOVIE);
 
-                //set the text in the textView
-                ((TextView) rootView.findViewById(R.id.detail_text)).setText(mMovie.getTitle());
-                Log.v(LOG_TAG,"Movie Title: " + mMovie.getTitle());
+                //set the texts in the appropriate textViews
+                ((TextView) rootView.findViewById(R.id.text_detail_title)).setText(mMovie.getTitle());
+                ((TextView) rootView.findViewById(R.id.text_detail_releasedate)).setText("Released: " + getFormattedDate(mMovie.getReleaseDay(), mMovie.getReleaseMonth(), mMovie.getReleaseYear()));
+                ((TextView) rootView.findViewById(R.id.text_detail_rating)).setText("Rating: " + mMovie.getRating() + " (" + mMovie.getVote_count() + ")");
+                ((TextView) rootView.findViewById(R.id.text_detail_synopsis)).setText(mMovie.getOverview());
+
+                //set the poster image
+                ImageView posterImage = (ImageView) rootView.findViewById(R.id.image_detail_poster);
+                Picasso.with(rootView.getContext()).load(mMovie.getPosterUrl(3)).into(posterImage); //// TODO: 22/11/2016 have user choose poster size
+
+                //set the action bar title of the Activity
+                //takes form "Title (Year of Release)"
+                String title = mMovie.getTitle() + " (" + mMovie.getReleaseYear() + ")";
+                ((DetailActivity) getActivity()).setActionBarTitle(title);
+
 
             }
 
             return rootView;
+        }
+
+        private String getFormattedDate(String day, String month, String year) {
+            int monthInt = Integer.parseInt(month);
+            String monthAbreviation = getResources().getStringArray(R.array.months)[monthInt];
+            return day + " - " + monthAbreviation + " - " + year;
         }
 
 

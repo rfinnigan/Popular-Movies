@@ -1,7 +1,6 @@
 package com.rfinnigan.popular_movies;
 
 import android.content.Context;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,27 +62,7 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
         ImageView posterImage = (ImageView) convertView.findViewById(R.id.list_item_movie_imageView);
 
 
-
-
-
-        // Construct the URL for the theMovieDB query
-
-
-        final String POSTERS_BASE_URL = "http://image.tmdb.org/t/p/";
-
-        String sizePath = "w185"; //TODO enable user choice of size
-
-
-        Uri builtUri = Uri.parse(POSTERS_BASE_URL);
-        builtUri = builtUri.buildUpon().appendPath(sizePath)
-                .appendPath(movie.getPoster())
-                .build();
-
-
-
-
-
-        String url = builtUri.toString();
+        String url = movie.getPosterUrl(3);//// TODO: 22/11/2016 enable user choice of poster size
 
         //Log.v(LOG_TAG, "Using Poster URL: " + url);
 
